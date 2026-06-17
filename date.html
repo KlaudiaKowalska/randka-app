@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wybierz termin</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div id="dateContainer"> 
+    <h1>💖 Yay! To nasza randka 💖</h1>
+
+    <input id="datePicker" placeholder="Wybierz datę 💖">
+
+    <div id="places">
+        <div class="place" data-place="Kawiarnia ☕">☕ Kawiarnia</div>
+        <div class="place" data-place="Spacer 🌸">🌸 Spacer</div>
+        <div class="place" data-place="Basen 🏊‍♀️">🏊‍♀️ Basen</div>
+        <div class="place" data-place="Piknik 🧺">🧺 Piknik</div>
+    </div>
+
+    <p id="placeResult"></p>
+
+    <button id="confirmBtn" disabled>💌 Potwierdź</button>
+</div>
+
+<div id="hearts-container"></div>
+
+<script>
+/* =========================
+   EMAILJS INIT
+========================= */
+emailjs.init("9-RnBkwdzBaeqnl5C");
+
+/* =========================
+   STATE
+========================= */
+let selectedPlace = "";
+let selectedDate = "";
+
+/* =========================
+   BUTTON
+========================= */
+const confirmBtn = document.getElementById("confirmBtn");
+
+/* =========================
+   FLATPICKR
+========================= */
+flatpickr("#datePicker", {
+    enableTime: true,
+    dateFormat: "💖 d-m-Y o H:i 💖",
+    time_24hr: true,
+    minDate: "today",
+
+    onClose: function(selectedDates, dateStr) {
+        selectedDate = dateStr;
+        updateButtonState();
+    }
+});
+
+/* =========================
+   PLACES SELECT
+========================= */
+const places = document.querySelectorAll(".place");
+const placeResult = document.getElementById("placeResult");
+
+places.forEach(place => {
+    place.addEventListener("click", () => {
+        selectedPlace = place.dataset.place;
+        placeResult.textContent = "📍 Wybrane miejsce: " + selectedPlace;
+        updateButtonState();
+    });
+});
+
+/* =========================
+   ENABLE BUTTON LOGIC
+========================= */
+function updateButtonState() {
+    confirmBtn.disabled = !(selectedDate && selectedPlace);
+}
+
+/* =========================
+   CONFIRM CLICK
+========================= */
+confirmBtn.addEventListener("click", () => {
+    sendEmail(selectedDate);
+
+    alert("💖 Randka potwierdzona!");
+
+    for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+            spawnHeart();
+        }, i * 80);
+    }
+});
+
+/* =========================
+   EMAIL SEND
+========================= */
+function sendEmail(dateStr) {
+    emailjs.send("service_4o2e2u4", "template_1by8x6b", {
+        date: dateStr,
+        place: selectedPlace
+    })
+    .then(() => {
+        alert("💌 Email wysłany!");
+    })
+    .catch(err => {
+        console.log("Błąd EmailJS:", err);
+    });
+}
+
+/* =========================
+   HEARTS ANIMATION
+========================= */
+function spawnHeart() {
+    const heart = document.createElement("div");
+    heart.classList.add("heart");
+    heart.textContent = "💖";
+
+    heart.style.left = Math.random() * window.innerWidth + "px";
+    heart.style.top = window.innerHeight + "px";
+
+    document.getElementById("hearts-container").appendChild(heart);
+
+    setTimeout(() => {
+        heart.remove();
+    }, 2000);
+}
+</script>
+
+</body>
+</html>
